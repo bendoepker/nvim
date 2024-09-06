@@ -23,6 +23,7 @@ require("lazy").setup({
 	spec = {
 		-- ADD PLUGINS HERE
         {'navarasu/onedark.nvim'},
+        {'echasnovski/mini.nvim'},
 		-- I have a separate config.mappings file where I require which-key.
 		-- With lazy the plugin will be automatically loaded when it is required somewhere
 		{ "folke/which-key.nvim", lazy = false },

@@ -1,3 +1,5 @@
+vim.g.have_nerd_font = true
+
 vim.opt.wrap = false
 
 vim.opt.swapfile = false
