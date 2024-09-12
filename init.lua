@@ -22,6 +22,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = {
 		-- ADD PLUGINS HERE
+        {'lewis6991/gitsigns.nvim'},
         {'navarasu/onedark.nvim'},
         {'echasnovski/mini.nvim'},
         {'nvim-tree/nvim-web-devicons'},
@@ -68,5 +69,5 @@ require("lazy").setup({
 	},
   -- Configure any other settings here. See the documentation for more details.
   -- automatically check for plugin updates
-  checker = { enabled = true },
+  checker = { enabled = false },
 })
