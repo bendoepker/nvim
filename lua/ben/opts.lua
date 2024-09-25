@@ -1,5 +1,8 @@
 vim.g.have_nerd_font = true
 
+vim.opt.mouse = ""
+
+
 vim.opt.wrap = false
 
 vim.opt.swapfile = false
@@ -30,7 +33,7 @@ vim.opt.incsearch = true
 
 vim.opt.termguicolors = true
 
-vim.opt.signcolumn = 'yes'
+vim.opt.signcolumn = 'auto:1-4'
 
 vim.opt.updatetime = 50
 

@@ -1,6 +1,21 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+vim.keymap.set('n', 'Q', '<nop>')
+
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<ScrollWheelUp>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<S-ScrollWheelUp>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<C-ScrollWheelUp>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<ScrollWheelDown>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<S-ScrollWheelDown>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<C-ScrollWheelDown>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<ScrollWheelLeft>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<S-ScrollWheelLeft>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<C-ScrollWheelLeft>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<ScrollWheelRight>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<S-ScrollWheelRight>', '<nop>')
+vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<C-ScrollWheelRight>', '<nop>')
+
 vim.keymap.set('n', "<leader>pv", function() vim.cmd('Ex') end)
 
 -- Moves the focus to different windows
