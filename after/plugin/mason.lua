@@ -8,6 +8,7 @@ require('mason-lspconfig').setup({
       require('lspconfig')[server_name].setup({})
     end,
   },
+  automatic_installation = true,
 })
 
 require('mason-lspconfig').setup({

@@ -1,8 +1,8 @@
-require("ben/remap")
-require("ben/opts")
+require(".\\ben\\remap")
+require(".\\ben\\opts")
 
 -- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath("data") .. "\\lazy\\lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
   local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
@@ -35,10 +35,11 @@ require("lazy").setup({
 			dependencies = { 'nvim-lua/plenary.nvim' }
 		},
 		{'nvim-treesitter/nvim-treesitter',
+			compilers = { "clang" },
 			build = ':TSUpdate',
 			main = 'nvim-treesitter.configs', -- Sets main module to use for opts
 			opts = {
-				ensure_installed = { 'bash', 'cpp', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'kotlin' },
+				--ensure_installed = { 'bash', 'cpp', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'kotlin' },
 				-- Autoinstall languages that are not installed
 				auto_install = true,
 				highlight = {
