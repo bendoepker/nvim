@@ -22,6 +22,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = {
 		-- ADD PLUGINS HERE
+		{'williamboman/mason.nvim'}, --
         {'lewis6991/gitsigns.nvim'},
         {'navarasu/onedark.nvim'},
         {'echasnovski/mini.nvim'},
@@ -55,7 +56,6 @@ require("lazy").setup({
 		{'hrsh7th/cmp-nvim-lsp'}, --
 		{'hrsh7th/nvim-cmp'}, --
 		{'hrsh7th/cmp-buffer'}, --
-		{'williamboman/mason.nvim'}, --
 		{'williamboman/mason-lspconfig.nvim'}, --
 		{'L3MON4D3/LuaSnip'},
 		{
