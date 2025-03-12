@@ -2,12 +2,17 @@ require('mason').setup({})
 require('mason-lspconfig').setup({
   -- Replace the language servers listed here 
   -- with the ones you want to install
+<<<<<<< HEAD
   ensure_installed = {'lua_ls', 'rust_analyzer', 'eslint'},
+=======
+  ensure_installed = {'lua_ls', 'rust_analyzer', 'clangd'},
+>>>>>>> origin
   handlers = {
     function(server_name)
       require('lspconfig')[server_name].setup({})
     end,
   },
+  automatic_installation = true,
 })
 
 require('mason-lspconfig').setup({
