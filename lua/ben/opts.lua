@@ -44,6 +44,9 @@ vim.opt.cursorline = true
 
 vim.opt.scrolloff = 10
 
+-- Vertical line 90 characters to the right
+vim.opt.cc = {90}
+
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 vim.api.nvim_create_autocmd('TextYankPost', {
