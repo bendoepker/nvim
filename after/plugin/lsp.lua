@@ -23,6 +23,11 @@ lsp.extend_lspconfig({
 
 require('lspconfig').lua_ls.setup({})
 
+require('lspconfig').clangd.setup {
+    cmd = { "clangd", "--compile-commands-dir=build" },
+
+}
+
 local cmp = require('cmp')
 
 cmp.setup({

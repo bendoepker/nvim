@@ -59,6 +59,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 vim.opt.inccommand = 'split'
 
+vim.o.modeline = false
+
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 vim.opt.ww = 'h,l,<,>,[,]'
