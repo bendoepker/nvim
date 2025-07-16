@@ -2,11 +2,15 @@ require('mason').setup({})
 require('mason-lspconfig').setup({
   -- Replace the language servers listed here 
   -- with the ones you want to install
-  ensure_installed = {'lua_ls',
-        'clangd', --dependency: unzip
-        'ts_ls',
-        'rust_analyzer',
-        'mesonlsp',
+  ensure_installed = {
+        'clangd', --dependency: unzip       -- C, C++, Fortran, etc.
+        'cmake',                            -- Cmake
+        'zls',                              -- Zig LSP
+        'rust_analyzer',                    -- Rust LSP
+        'mesonlsp',                         -- Meson LSP
+        'pylsp',                            -- Python LSP
+        'ts_ls',                            -- Typescript LSP (Requires NPM)
+        'lua_ls',                           -- Lua LSP
     },
 
   handlers = {
