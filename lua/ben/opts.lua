@@ -64,3 +64,5 @@ vim.o.modeline = false
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 vim.opt.ww = 'h,l,<,>,[,]'
+
+vim.opt.shadafile="NONE"
