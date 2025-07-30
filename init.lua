@@ -382,6 +382,12 @@ require('mason-lspconfig').setup({
         'pylsp',                            -- Python LSP
         'ts_ls',                            -- Typescript LSP (Requires NPM)
         'lua_ls',                           -- Lua LSP
+        'html',                             -- HTML LSP
+        'cssls',                            -- CSS LSP
+        'bashls',                           -- Bash LSP
+        'gradle_ls',                        -- Gradle LSP
+        'kotlin_language_server',           -- Kotlin LSP
+        --'java_language_server',             -- Java LSP (requires jlink and i don't feel like figuring out where that resides)
     },
 
     handlers = {
