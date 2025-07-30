@@ -34,5 +34,5 @@ vim.keymap.set('n', 'J', "mzJ`z")
 vim.keymap.set('n', '<C-d>', "<C-d>zz")
 vim.keymap.set('n', '<C-u>', "<C-u>zz")
 
-vim.keymap.set('x', "<leader>p", "\"_dP")
-
+vim.keymap.set('x', "<leader>p", "\"_dP", { desc = "Paste without overwriting clipboard"})
+vim.keymap.set('x', "<leader>d", "\"_d", { desc = "Delete without overwriting clipboard"})

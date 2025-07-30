@@ -22,9 +22,107 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = {
 		-- ADD PLUGINS HERE
-		{'williamboman/mason.nvim'}, --
+        {
+            'navarasu/onedark.nvim',
+            priority = 1000,
+            config = function()
+                require('onedark').setup  {
+                    -- Main options --
+                    style = 'darker', -- Default theme style. Choose between 'dark', 'darker', 'cool', 'deep', 'warm', 'warmer' and 'light'
+                    transparent = true,  -- Show/hide background
+                    term_colors = false, -- Change terminal color as per the selected theme style
+                    ending_tildes = false, -- Show the end-of-buffer tildes. By default they are hidden
+                    cmp_itemkind_reverse = false, -- reverse item kind highlights in cmp menu
+
+                    -- toggle theme style ---
+                    toggle_style_key = nil, -- keybind to toggle theme style. Leave it nil to disable it, or set it to a string, for example "<leader>ts"
+                    toggle_style_list = {'dark', 'darker', 'cool', 'deep', 'warm', 'warmer', 'light'}, -- List of styles to toggle between
+
+                    -- Change code style ---
+                    -- Options are italic, bold, underline, none
+                    -- You can configure multiple style with comma separated, For e.g., keywords = 'italic,bold'
+                    code_style = {
+                        comments = 'none',
+                        keywords = 'none',
+                        functions = 'none',
+                        strings = 'italic',
+                        variables = 'none'
+                    },
+
+                    -- Lualine options --
+                    lualine = {
+                        transparent = true, -- lualine center bar transparency
+                    },
+
+                    -- Custom Highlights --
+                    colors = {
+                        -- Override default colors
+                        --[[
+                        yellow_orange = '#d9b816',
+                        orange = '#d49633',
+                        dank_orange = '#d972223',
+                        danker_orange = '#a74825',
+                        shiny_green = '#81e3a2',
+                        green = '#05b03e',
+                        cyan = '#22bdad',
+                        shlue = '#2fcfdf',
+                        purple = '#8143ba',
+                        eggshell_white = '#e8e5d8',
+                        light_gray = '#dedede',
+                        lightish_gray = '#94908a',
+                        gray = '#e8e5d8', -- Same as eggshell_white
+                        black = '#000000',
+                        ]]
+                    },
+                    highlights = {
+                        --[[
+                        -- Override highlight groups
+                        -- Language Keyword
+                        ['@lsp.type.keyword'] = {fg = '$purple'},
+                        ['@lsp.type.operator'] = { fg = '$eggshell_white' },
+
+                        -- Type and Type-likes
+                        ['@lsp.type.class'] = { fg = '$orange' },
+                        ['@lsp.type.struct'] = { fg = '$orange' },
+                        ['@lsp.type.type'] = { fg = '$orange' },
+                        ['@lsp.type.typeParameter'] = { fg = '$orange' },
+                        ['@lsp.type.enum'] = { fg = '$orange' },
+                        ['@lsp.type.enumMember'] = { fg = '$dank_orange' },
+                        ['@lsp.type.interface'] = { fg = '$shiny_green' },
+                        ['@lsp.type.namespace'] = { fg = 'danker_orange' },
+
+                        -- Functions
+                        ['@lsp.type.function'] = { fg = '$shlue' },
+                        ['@lsp.type.method'] = { fg = 'shlue' },
+                        ['@lsp.type.number'] = { fg = 'yellow_orange' },
+                        ['@lsp.type.macro'] = { fg = '$danker_orange' },
+
+                        -- Primitives (Idk what to call this collection)
+                        ['@lsp.type.variable'] = { fg = '$light_gray' },
+                        ['@lsp.type.string'] = { fg = '$green' },
+                        ['@lsp.type.comment'] = { fg = '$eggshell_white' },
+
+                        ['@lsp.type.decorator'] = { fg = '$eggshell_white' },
+                        --['@lsp.type.event'] = { fg = '' },
+                        ['@lsp.type.modifier'] = { fg = 'orange' },
+                        --['@lsp.type.parameter'] = { fg = '' },
+                        ['@lsp.type.property'] = { fg = 'danker_orange' },
+                        --['@lsp.type.regexp'] = { fg = '' },
+                        ]]
+                    },
+
+                    -- Plugins Config --
+                    diagnostics = {
+                        darker = true, -- darker colors for diagnostic
+                        undercurl = true,   -- use undercurl instead of underline for diagnostics
+                        background = false,    -- use background color for virtual text
+                    },
+                }
+                require('onedark').load()
+            end
+        },
+        {'williamboman/mason.nvim'},
         {'lewis6991/gitsigns.nvim'},
-        {'navarasu/onedark.nvim'},
         {'echasnovski/mini.nvim'},
         {'nvim-tree/nvim-web-devicons'},
 		-- I have a separate config.mappings file where I require which-key.
@@ -50,6 +148,7 @@ require("lazy").setup({
 			}
 		},
 		{'nvim-treesitter/playground'},
+        {'nvim-lualine/lualine.nvim', dependencies = { 'nvim-tree/nvim-web-devicons' }},
 		{'theprimeagen/harpoon'}, --
 		{'VonHeikemen/lsp-zero.nvim', branch = 'v4.x'}, --
 		{'neovim/nvim-lspconfig'}, --
