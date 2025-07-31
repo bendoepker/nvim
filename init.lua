@@ -565,13 +565,6 @@ vim.keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", {desc = 'S
 
 vim.keymap.set('n', "<leader>pv", function() vim.cmd('Ex') end)
 
--- Moves the focus to different windows
-vim.keymap.set('n', '<C-h>', '<nop>')
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = "Move the line down and adjust indentation" })
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = "Move the line up and adjust indentation" })
 
@@ -589,13 +582,13 @@ vim.keymap.set('n', "<leader>gs", vim.cmd.Git, { desc = "Open Git Viewer" })
 -- Harpoon bindings
 vim.keymap.set('n', "<leader>a", harpoon_mark.add_file, { desc = "Add file to harpoon" })
 vim.keymap.set('n', "<C-e>", harpoon_ui.toggle_quick_menu, { desc = "Show harpoon files" })
-vim.keymap.set('n', "<C-1>", function() harpoon_ui.nav_file(1) end, { desc = "Move to the first harpoon buffer" })
-vim.keymap.set('n', "<C-2>", function() harpoon_ui.nav_file(2) end, { desc = "Move to the second harpoon buffer" })
-vim.keymap.set('n', "<C-3>", function() harpoon_ui.nav_file(3) end, { desc = "Move to the third harpoon buffer" })
-vim.keymap.set('n', "<C-4>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fourth harpoon buffer" })
-vim.keymap.set('n', "<C-5>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fifth harpoon buffer" })
-vim.keymap.set('n', "<C-6>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the sixth harpoon buffer" })
-vim.keymap.set('n', "<C-7>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the seventh harpoon buffer" })
+vim.keymap.set('n', "<C-h>", function() harpoon_ui.nav_file(1) end, { desc = "Move to the first harpoon buffer" })
+vim.keymap.set('n', "<C-j>", function() harpoon_ui.nav_file(2) end, { desc = "Move to the second harpoon buffer" })
+vim.keymap.set('n', "<C-k>", function() harpoon_ui.nav_file(3) end, { desc = "Move to the third harpoon buffer" })
+vim.keymap.set('n', "<C-l>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fourth harpoon buffer" })
+vim.keymap.set('n', "<C-t>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fifth harpoon buffer" })
+vim.keymap.set('n', "<C-n>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the sixth harpoon buffer" })
+vim.keymap.set('n', "<C-s>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the seventh harpoon buffer" })
 
 -- Telescope Bindings
 vim.keymap.set('n', '<leader>pf', telescope.find_files, {})
