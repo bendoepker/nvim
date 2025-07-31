@@ -586,9 +586,9 @@ vim.keymap.set('n', "<C-h>", function() harpoon_ui.nav_file(1) end, { desc = "Mo
 vim.keymap.set('n', "<C-j>", function() harpoon_ui.nav_file(2) end, { desc = "Move to the second harpoon buffer" })
 vim.keymap.set('n', "<C-k>", function() harpoon_ui.nav_file(3) end, { desc = "Move to the third harpoon buffer" })
 vim.keymap.set('n', "<C-l>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fourth harpoon buffer" })
-vim.keymap.set('n', "<C-t>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fifth harpoon buffer" })
-vim.keymap.set('n', "<C-n>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the sixth harpoon buffer" })
-vim.keymap.set('n', "<C-s>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the seventh harpoon buffer" })
+vim.keymap.set('n', "<C-t>", function() harpoon_ui.nav_file(5) end, { desc = "Move to the fifth harpoon buffer" })
+vim.keymap.set('n', "<C-n>", function() harpoon_ui.nav_file(6) end, { desc = "Move to the sixth harpoon buffer" })
+vim.keymap.set('n', "<C-s>", function() harpoon_ui.nav_file(7) end, { desc = "Move to the seventh harpoon buffer" })
 
 -- Telescope Bindings
 vim.keymap.set('n', '<leader>pf', telescope.find_files, {})
