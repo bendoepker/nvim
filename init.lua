@@ -241,7 +241,7 @@ local lsp_attach = function(client, bufnr)
   vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
   vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
   vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-  vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
+  vim.keymap.set('i', '<C-g>', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
   vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
   vim.keymap.set({'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
   vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
@@ -458,7 +458,7 @@ require('which-key').add({
     {'gi', desc = "Go to Implementation"},
     {'go', desc = "Go to Type Definition"},
     {'gr', desc = "Go to References"},
-    {'gs', desc = "Show Signature Help"},
+    {'<C-g>', desc = "Show Signature Help"},
     {'<F2>', desc = "Rename Under Cursor"},
     {'<F3>', desc = "Format Selection"},
     {'<F4>', desc = "Go to next Code Action"},
