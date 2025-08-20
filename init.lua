@@ -123,6 +123,15 @@ require("lazy").setup({
             end
         },
         {'williamboman/mason.nvim'},
+        {
+                'nvim-flutter/flutter-tools.nvim',
+                lazy = false,
+                dependencies = {
+                    'nvim-lua/plenary.nvim',
+                    -- 'stevearc/dressing.nvim', -- optional for vim.ui.select
+                },
+                config = true,
+        },
 		{'williamboman/mason-lspconfig.nvim'},
         {'lewis6991/gitsigns.nvim'},
         {'echasnovski/mini.nvim'},
@@ -156,6 +165,7 @@ require("lazy").setup({
 		{'hrsh7th/nvim-cmp'}, --
 		{'hrsh7th/cmp-buffer'}, --
 		{'L3MON4D3/LuaSnip'},
+        --[[
 		{
 			'windwp/nvim-autopairs',
 			event = "InsertEnter",
@@ -163,6 +173,7 @@ require("lazy").setup({
 			-- use opts = {} for passing setup options
 			-- this is equivalent to setup({}) function
 		},
+        ]]
 		{'mbbill/undotree'},
 		{'tpope/vim-fugitive'},
 	},
