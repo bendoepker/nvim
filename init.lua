@@ -133,6 +133,7 @@ require("lazy").setup({
                 config = true,
         },
 		{'williamboman/mason-lspconfig.nvim'},
+        {'rhysd/vim-llvm'},
         {'lewis6991/gitsigns.nvim'},
         {'echasnovski/mini.nvim'},
         {'nvim-tree/nvim-web-devicons'},
@@ -571,6 +572,8 @@ vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<C-ScrollWheelLeft>', '<nop>')
 vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<ScrollWheelRight>', '<nop>')
 vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<S-ScrollWheelRight>', '<nop>')
 vim.keymap.set({'n', 'i', 'v', 'x', 't'}, '<C-ScrollWheelRight>', '<nop>')
+
+vim.keymap.set('i', '<C-S-o>', '<C-o><S-o>')
 
 vim.keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", {desc = 'Show the warning(s) / error(s) in a float'})
 
