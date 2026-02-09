@@ -133,6 +133,7 @@ require("lazy").setup({
                 config = true,
         },
 		{'williamboman/mason-lspconfig.nvim'},
+        {'folke/lua-dev.nvim'},
         {'rhysd/vim-llvm'},
         {'lewis6991/gitsigns.nvim'},
         {'echasnovski/mini.nvim'},
@@ -144,7 +145,6 @@ require("lazy").setup({
 			dependencies = { 'nvim-lua/plenary.nvim' }
 		},
 		{'nvim-treesitter/nvim-treesitter',
-			compilers = { "clang" },
 			build = ':TSUpdate',
 			main = 'nvim-treesitter.configs', -- Sets main module to use for opts
 			opts = {
@@ -265,8 +265,6 @@ lsp.extend_lspconfig({
   capabilities = require('cmp_nvim_lsp').default_capabilities(),
 })
 
-require('lspconfig').lua_ls.setup({})
-
 local cmp = require('cmp')
 
 cmp.setup({
@@ -280,6 +278,52 @@ cmp.setup({
 	},
   mapping = cmp.mapping.preset.insert({}),
 })
+
+vim.lsp.config['lua_ls'] = {
+	settings = {
+		Lua = {
+			telemetry = {
+				enable = false
+			},
+		},
+	},
+	on_init = function(client)
+		local join = vim.fs.joinpath
+		local path = vim.fs.abspath('.')
+
+		-- Don't do anything if there is project local config
+		if vim.uv.fs_stat(join(path, '.luarc.json')) 
+			or vim.uv.fs_stat(join(path, '.luarc.jsonc'))
+		then
+			return
+		end
+
+		local nvim_settings = {
+			runtime = {
+				-- Tell the language server which version of Lua you're using
+				version = 'LuaJIT',
+			},
+			diagnostics = {
+				-- Get the language server to recognize the `vim` global
+				globals = {'vim'}
+			},
+			workspace = {
+				checkThirdParty = false,
+				library = {
+					-- Make the server aware of Neovim runtime files
+					vim.env.VIMRUNTIME,
+					vim.fn.stdpath('config'),
+				},
+			},
+		}
+
+		client.config.settings.Lua = vim.tbl_deep_extend(
+			'force',
+			client.config.settings.Lua,
+			nvim_settings
+		)
+	end,
+}
 
 -- SECT: Lualine
 function ForceTransparency()
