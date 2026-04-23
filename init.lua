@@ -220,6 +220,16 @@ cmp.setup({
   mapping = cmp.mapping.preset.insert({}),
 })
 
+require('todo-comments').setup ({
+    keywords = {
+        SECTION = {
+            icon =  "§ ",
+            color = "#93E9BE",
+            alt = {"SECT", "BREAK"}
+        }
+    }
+})
+
 require('onedark').setup  {
     -- Main options --
     style = 'darker', -- Default theme style. Choose between 'dark', 'darker', 'cool', 'deep', 'warm', 'warmer' and 'light'
