@@ -610,14 +610,14 @@ require('opencode').setup({
 
   -- Server configuration for custom/external opencode servers
   server = {
-    url = nil,             -- URL/hostname (e.g., 'http://192.168.1.100', 'localhost', 'https://myserver.com')
-    port = nil,            -- Port number (e.g., 8080), 'auto' for random port
-    timeout = 5,           -- Health check timeout in seconds when connecting
-    spawn_command = nil,   -- Optional function to start the server: function(port, url) ... end
-    auto_kill = true,      -- Kill spawned servers when last nvim instance exits (default: true) Only applies to servers spawned by the plugin with spawn_command/kill_command
-    path_map = nil,        -- Map host paths to server paths: string ('/app') or function(path) -> string
-    username = nil,        -- Username for Basic auth. Falls back to OPENCODE_SERVER_USERNAME env var, then "opencode"
-    password = nil,        -- Password for Basic auth. Falls back to OPENCODE_SERVER_PASSWORD env var
+    url = 'localhost',      -- URL/hostname (e.g., 'http://192.168.1.100', 'localhost', 'https://myserver.com')
+    port = auto,            -- Port number (e.g., 8080), 'auto' for random port
+    timeout = 5,            -- Health check timeout in seconds when connecting
+    spawn_command = nil,    -- Optional function to start the server: function(port, url) ... end
+    auto_kill = true,       -- Kill spawned servers when last nvim instance exits (default: true) Only applies to servers spawned by the plugin with spawn_command/kill_command
+    path_map = nil,         -- Map host paths to server paths: string ('/app') or function(path) -> string
+    username = nil,         -- Username for Basic auth. Falls back to OPENCODE_SERVER_USERNAME env var, then "opencode"
+    password = nil,         -- Password for Basic auth. Falls back to OPENCODE_SERVER_PASSWORD env var
   },
 
   keymap = {
