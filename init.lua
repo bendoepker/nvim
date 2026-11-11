@@ -24,6 +24,8 @@ vim.schedule(function()
 	vim.o.clipboard = 'unnamedplus'
 end)
 
+vim.o.fileformat = "unix"
+
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
