@@ -25,6 +25,7 @@ vim.schedule(function()
 end)
 
 vim.o.fileformat = "unix"
+vim.opt.fileformats = {"unix", "dos"}
 
 vim.o.ignorecase = true
 vim.o.smartcase = true
@@ -286,24 +287,17 @@ require('onedark').setup  {
     -- Custom Highlights --
     colors = {
         -- Override default colors
-        --[[
-        yellow_orange = '#d9b816',
-        orange = '#d49633',
-        dank_orange = '#d972223',
-        danker_orange = '#a74825',
-        shiny_green = '#81e3a2',
-        green = '#05b03e',
-        cyan = '#22bdad',
-        shlue = '#2fcfdf',
-        purple = '#8143ba',
-        eggshell_white = '#e8e5d8',
-        light_gray = '#dedede',
-        lightish_gray = '#94908a',
-        gray = '#e8e5d8', -- Same as eggshell_white
-        black = '#000000',
-        ]]
     },
     highlights = {
+        -- Brighter gray comments (covers legacy, Treesitter, and LSP groups)
+        ['Comment'] = { fg = '#7f8590' },
+        ['@comment'] = { fg = '#7f8590' },
+        ['@lsp.type.comment'] = { fg = '#7f8590' },
+
+        -- Transparent statusline fill (the empty middle of lualine)
+        ['StatusLine'] = { bg = 'none' },
+        ['StatusLineNC'] = { bg = 'none' },
+
         --[[
         -- Override highlight groups
         -- Language Keyword
@@ -327,7 +321,7 @@ require('onedark').setup  {
         ['@lsp.type.macro'] = { fg = '$danker_orange' },
 
         -- Primitives (Idk what to call this collection)
-        ['@lsp.type.variable'] = { fg = '$light_gray' },
+        ['@lsp.type.variable'] = { fg = '$eggshell_white' },
         ['@lsp.type.string'] = { fg = '$green' },
         ['@lsp.type.comment'] = { fg = '$eggshell_white' },
 
@@ -353,33 +347,29 @@ local auto = require('lualine.themes.auto')
 auto.normal = {
     a = { fg = 'ffffff', bg = 'c44e43' },
     b = { fg = '000000', bg = 'd6cfc9' },
-    c = { fg = 'ffffff', bg = 'None' },
+    c = { fg = 'ffffff', bg = 'NONE' },
 }
 auto.insert = {
-    a = { fg = 'ffffff', bg = 'c44e43' },
+    a = { fg = '000000', bg = 'ffcc80' },
     b = { fg = '000000', bg = 'd6cfc9' },
-    c = { fg = 'ffffff', bg = 'None' },
+    c = { fg = 'ffffff', bg = 'NONE' },
 }
 auto.visual = {
     a = { fg = 'ffffff', bg = '5007d9' },
     b = { fg = '000000', bg = 'd6cfc9' },
-    c = { fg = 'ffffff', bg = 'None' },
+    c = { fg = 'ffffff', bg = 'NONE' },
 }
 auto.replace = {
     a = { fg = 'ffffff', bg = 'bd6315' },
     b = { fg = '000000', bg = 'd6cfc9' },
-    c = { fg = 'ffffff', bg = 'None' },
+    c = { fg = 'ffffff', bg = 'NONE' },
 }
 auto.command = {
     a = { fg = '000000', bg = 'd6cfc9' },
     b = { fg = '000000', bg = 'd6cfc9' },
-    c = { fg = 'ffffff', bg = 'None' },
+    c = { fg = 'ffffff', bg = 'NONE' },
 }
-auto.inactive = {
-    a = { fg = 'ffffff', bg = 'd6cfc9' },
-    b = { fg = '000000', bg = 'd6cfc9' },
-    c = { fg = 'ffffff', bg = 'None' },
-}
+auto.inactive = auto.normal -- unfocused windows use the same colors as normal mode
 require('lualine').setup {
     options = {
         icons_enabled = true,
@@ -422,10 +412,10 @@ require('lualine').setup {
         lualine_z = {}
     },
     inactive_sections = {
-        lualine_a = {},
-        lualine_b = {},
-        lualine_c = {'filename'},
-        lualine_x = {'location'},
+        lualine_a = {'location'},
+        lualine_b = {'branch', 'diff', 'diagnostics', 'filename', 'filetype'},
+        lualine_c = {},
+        lualine_x = {},
         lualine_y = {},
         lualine_z = {}
     },
