@@ -669,6 +669,103 @@ vim.api.nvim_create_autocmd('User', {
         OilGitRefresh(require('oil').get_current_dir())
     end,
 })
+
+-- Moving / renaming a file that has unsaved edits: carry the buffer along quietly.
+-- Out of the box, oil copies the unsaved text into a new buffer but can't close the
+-- old one (it's unsaved), which causes E89 and an E211 "no longer available" prompt.
+-- Here, just before the move, each affected buffer's unsaved text, undo history, and
+-- cursor are saved and the buffer is marked saved, so oil swaps it out cleanly. After
+-- the move, everything is put back on the new buffer, which stays unsaved.
+local oil_moving = {}
+
+local function oil_url_to_path(url)
+    local _, path = require('oil.util').parse_url(url)
+    return path and vim.fs.normalize(require('oil.fs').posix_to_os_path(path)) or nil
+end
+
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'OilActionsPre',
+    desc = 'Save unsaved buffers that oil is about to move',
+    callback = function(ev)
+        oil_moving = {}
+        for _, action in ipairs(ev.data.actions) do
+            local src = action.type == 'move' and oil_url_to_path(action.src_url)
+            local dest = src and oil_url_to_path(action.dest_url)
+            if src and dest then
+                for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                    local name = vim.fs.normalize(vim.api.nvim_buf_get_name(buf))
+                    local inside = name == src or vim.startswith(name, src .. '/') -- the file, or a file in a moved folder
+                    if inside and vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == '' and vim.bo[buf].modified then
+                        local item = {
+                            buf = buf,
+                            dest = dest .. name:sub(#src + 1),
+                            lines = vim.api.nvim_buf_get_lines(buf, 0, -1, true),
+                            undo = vim.fn.tempname(),
+                            cursors = {},
+                        }
+                        for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+                            item.cursors[win] = vim.api.nvim_win_get_cursor(win)
+                        end
+                        vim.api.nvim_buf_call(buf, function()
+                            vim.cmd('silent! wundo! ' .. vim.fn.fnameescape(item.undo))
+                        end)
+                        vim.bo[buf].modified = false
+                        -- Until oil swaps it out, its file is "missing"; skip Neovim's
+                        -- changed-on-disk check (E211 / reload prompt) for this buffer only
+                        item.guard = vim.api.nvim_create_autocmd('FileChangedShell', {
+                            buffer = buf,
+                            callback = function() vim.v.fcs_choice = '' end,
+                        })
+                        table.insert(oil_moving, item)
+                    end
+                end
+            end
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'OilActionsPost',
+    desc = 'Restore unsaved edits on buffers that oil moved',
+    callback = function(ev)
+        local items = oil_moving
+        oil_moving = {}
+        if #items == 0 then return end
+        -- Run after oil's own (scheduled) buffer swap has finished
+        vim.schedule(function()
+            for _, item in ipairs(items) do
+                local buf = item.buf
+                if ev.data.err == nil then
+                    buf = vim.fn.bufadd(item.dest)
+                    vim.fn.bufload(buf)
+                    vim.bo[buf].buflisted = true
+                    vim.api.nvim_buf_set_lines(buf, 0, -1, true, item.lines)
+                    vim.api.nvim_buf_call(buf, function()
+                        vim.cmd('silent! rundo ' .. vim.fn.fnameescape(item.undo))
+                    end)
+                    -- Any window still showing the old buffer switches to the moved one
+                    for _, win in ipairs(vim.fn.win_findbuf(item.buf)) do
+                        if win ~= nil and item.buf ~= buf then vim.api.nvim_win_set_buf(win, buf) end
+                    end
+                    for win, cursor in pairs(item.cursors) do
+                        if vim.api.nvim_win_is_valid(win) then
+                            if vim.api.nvim_win_get_buf(win) ~= buf then vim.api.nvim_win_set_buf(win, buf) end
+                            pcall(vim.api.nvim_win_set_cursor, win, cursor)
+                        end
+                    end
+                    -- Oil sometimes leaves the old buffer behind (files inside a moved folder)
+                    if item.buf ~= buf and vim.api.nvim_buf_is_valid(item.buf) then
+                        pcall(vim.api.nvim_buf_delete, item.buf, { force = true })
+                    end
+                end
+                -- Mark unsaved again (on the moved buffer, or the original if the move failed)
+                if vim.api.nvim_buf_is_valid(buf) then vim.bo[buf].modified = true end
+                pcall(vim.api.nvim_del_autocmd, item.guard)
+                os.remove(item.undo)
+            end
+        end)
+    end,
+})
 -- Oil keymaps (-, <leader>pv, <leader>po) live in the Keymaps section,
 -- after mapleader is set.
 
@@ -767,11 +864,11 @@ vim.keymap.set('i', '<C-g>', '<cmd>lua vim.lsp.buf.signature_help()<cr>', {norem
 
 -- Telescope Bindings
 local telescope = require('telescope.builtin')
-vim.keymap.set('n', '<leader>pf', telescope.find_files, {})
-vim.keymap.set('n', '<C-p>', telescope.git_files, {})
+vim.keymap.set('n', '<leader>pf', telescope.find_files, { desc = "Fuzzy find files" })
+vim.keymap.set('n', '<leader>pg', telescope.git_files, { desc = "Fuzzy find git files" })
 vim.keymap.set('n', '<leader>ps', function()
 	telescope.grep_string({ search = vim.fn.input("Grep > ") })
-end)
+end, { desc = "Fuzzy find files with grep" })
 
 -- OpenCode
 -- Default configuration with all available options
