@@ -121,10 +121,6 @@ vim.pack.add({
         name = 'mason-lspconfig',
     },
     {
-        src = 'https://github.com/theprimeagen/harpoon',
-        name = 'harpoon',
-    },
-    {
         src = 'https://github.com/lewis6991/gitsigns.nvim',
         name = 'gitsigns',
     },
@@ -169,6 +165,18 @@ vim.pack.add({
     {
         src = 'https://github.com/sudo-tee/opencode.nvim',
         name = 'opencode'
+    },
+    {
+        src = 'https://github.com/stevearc/oil.nvim',
+        name = 'oil',
+    },
+    {
+        src = 'https://github.com/refractalize/oil-git-status.nvim',
+        name = 'oil-git-status',
+    },
+    {
+        src = 'https://github.com/tpope/vim-fugitive',
+        name = 'fugitive',
     },
 })
 
@@ -297,6 +305,9 @@ require('onedark').setup  {
         -- Transparent statusline fill (the empty middle of lualine)
         ['StatusLine'] = { bg = 'none' },
         ['StatusLineNC'] = { bg = 'none' },
+
+        ['FloatBorder'] = { fg = '#d6cfc9', bg = 'none' },
+        ['NormalFloat'] = { fg = '#d6cfc9', bg = 'none' },
 
         --[[
         -- Override highlight groups
@@ -477,6 +488,191 @@ require('gitsigns').setup {
 }
 
 --[[
+--  SECT: File Explorer
+--]]
+-- Oil.nvim: edit directories like a buffer. Rename a line to rename the file,
+-- delete a line to delete it, add a line to create it (end it with / for a
+-- folder), then :w to apply. Press g? inside an oil buffer for all keys.
+
+-- Turn off Neovim 0.13's built-in read-only directory viewer so oil owns
+-- directory buffers (this must run before Neovim loads its runtime plugins).
+vim.g.loaded_nvim_dir_plugin = 1
+
+require('oil').setup({
+    default_file_explorer = true,   -- Open oil for `nvim .` and `:e somedir` (replaces netrw)
+    columns = { 'icon' },           -- Add 'size', 'mtime', 'permissions' for more detail
+    delete_to_trash = true,         -- Deleted files go to the Recycle Bin, not gone for good
+    skip_confirm_for_simple_edits = false, -- Always show a confirmation before changing files
+    watch_for_changes = true,       -- Refresh when files change outside of Neovim
+    view_options = {
+        show_hidden = true,         -- Show dotfiles (toggle with g.)
+        natural_order = true,       -- file2 sorts before file10
+    },
+    keymaps = {
+        ['<C-h>'] = false,
+        ['<C-l>'] = false,
+        ['<C-s>'] = false,
+        ['<C-t>'] = false,
+        -- Replacements for the split / refresh actions freed up above
+        ['<C-v>'] = { 'actions.select', opts = { vertical = true }, desc = 'Open in vertical split' },
+        ['<C-x>'] = { 'actions.select', opts = { horizontal = true }, desc = 'Open in horizontal split' },
+        ['<C-r>'] = {
+            callback = function()
+                require('oil.actions').refresh.callback()
+                OilGitRefresh(require('oil').get_current_dir())
+                require('oil-git-status').refresh_buffer(vim.api.nvim_get_current_buf())
+            end,
+            desc = 'Refresh the listing and git status',
+        },
+        ['q'] = { 'actions.close', desc = 'Close oil and go back' },
+        ['<Esc>'] = {
+            callback = function()
+                if vim.api.nvim_win_get_config(0).relative ~= '' then
+                    require('oil').close()      -- Floating oil: close it
+                else
+                    vim.cmd('nohlsearch')       -- Normal oil window: usual <Esc> (clear search highlight)
+                end
+            end,
+            desc = 'Close oil when floating, otherwise clear search highlight',
+        },
+        -- Git diffs (fugitive) for the entry under the cursor. Same keys as in a file.
+        ['<leader>gd'] = { callback = function() OilGitDiff() end, desc = 'Git diff entry vs staged (fugitive)' },
+        ['<leader>gD'] = { callback = function() OilGitDiff('HEAD') end, desc = 'Git diff entry vs last commit (fugitive)' },
+    },
+    win_options = {
+        winbar = '%!v:lua.OilWinbar()', -- Directory header, built below
+        signcolumn = 'yes:2',           -- Room for the git status column (oil-git-status)
+    },
+    float = {
+        border = 'rounded',
+        win_options = {
+            -- Transparent float: use the see-through Normal background instead of
+            -- onedark's solid NormalFloat / FloatBorder colors (oil floats only)
+            winhighlight = 'NormalFloat:Normal,FloatBorder:OilFloatBorder,FloatTitle:OilFloatTitle',
+        },
+    },
+})
+-- Border and title keep onedark's colors, just without a background
+vim.api.nvim_set_hl(0, 'OilFloatBorder', { fg = vim.api.nvim_get_hl(0, { name = 'FloatBorder', link = false }).fg })
+vim.api.nvim_set_hl(0, 'OilFloatTitle', { fg = vim.api.nvim_get_hl(0, { name = 'FloatTitle', link = false }).fg, bold = true })
+
+-- Git status column in oil, left of the icons. Two letters per entry, like
+-- `git status --short`: left = staged, right = not staged.
+--   M modified  A added  D deleted  R renamed  ? untracked  ! ignored
+-- Folders show the status of what's inside them.
+require('oil-git-status').setup({
+    show_ignored = true,  -- Show gitignored entries with !!
+})
+
+-- Open a fugitive diff for the oil entry under the cursor.
+--   File:   opens the file with a side-by-side diff (:Gvdiffsplit)
+--   Folder: opens `git diff` for everything inside it in a new split
+-- `rev` is what to compare against: nil = staged (index), 'HEAD' = last commit.
+function OilGitDiff(rev)
+    local oil = require('oil')
+    local entry = oil.get_cursor_entry()
+    local dir = oil.get_current_dir()
+    if not entry or not dir then return end
+    local path = vim.fs.joinpath(dir, entry.name)
+    if entry.type == 'directory' then
+        vim.cmd('Git -C ' .. vim.fn.fnameescape(dir) .. ' diff ' .. (rev or '') .. ' -- ' .. vim.fn.fnameescape(entry.name))
+    else
+        vim.cmd.edit(vim.fn.fnameescape(path))
+        vim.cmd('Gvdiffsplit' .. (rev and (' ' .. rev) or ''))
+    end
+end
+
+-- Oil directory header: path, git branch, and change counts for that folder.
+--   +N staged   ~N changed (not staged)   ?N untracked   ✓ nothing changed
+-- Git runs in the background and the result is cached per folder, so oil never
+-- waits on it. The header refreshes on entering oil, after :w, and on <C-r>.
+local oil_git = {}  -- dir -> { branch = 'main', staged = 0, changed = 0, untracked = 0 } | false (not a repo)
+
+function OilGitRefresh(dir)
+    if not dir then return end
+    vim.system(
+        { 'git', '-C', dir, 'status', '--porcelain=v1', '--branch', '--', '.' },
+        { text = true },
+        function(res)
+            local info = false
+            if res.code == 0 then
+                info = { branch = '?', staged = 0, changed = 0, untracked = 0 }
+                for line in res.stdout:gmatch('[^\n]+') do
+                    if line:sub(1, 2) == '##' then
+                        -- "## main...origin/main [ahead 1]" or "## No commits yet on main"
+                        info.branch = line:match('^## No commits yet on (.+)$')
+                            or line:match('^## (.-)%.%.%.')
+                            or line:match('^## (%S+)')
+                            or '?'
+                        info.ahead = line:match('ahead (%d+)')
+                        info.behind = line:match('behind (%d+)')
+                    elseif line:sub(1, 2) == '??' then
+                        info.untracked = info.untracked + 1
+                    else
+                        local x, y = line:sub(1, 1), line:sub(2, 2)
+                        if x ~= ' ' then info.staged = info.staged + 1 end
+                        if y ~= ' ' then info.changed = info.changed + 1 end
+                    end
+                end
+            end
+            oil_git[dir] = info
+            vim.schedule(function() vim.cmd('redrawstatus!') end)
+        end
+    )
+end
+
+function OilWinbar()
+    local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+    local dir = require('oil').get_current_dir(buf)
+    if not dir then
+        -- Non-local oil buffers (ssh, trash) have no folder on disk; show the raw name
+        return ' ' .. vim.api.nvim_buf_get_name(buf):gsub('%%', '%%%%')
+    end
+
+    local path = vim.fn.fnamemodify(dir, ':~'):gsub('%%', '%%%%')
+    local parts = { '%#OilWinbarPath# ' .. path .. '%*' }
+
+    local git = oil_git[dir]
+    if git then
+        local s = { '%#OilWinbarBranch# ' .. git.branch:gsub('%%', '%%%%') }
+        if git.ahead then table.insert(s, '↑' .. git.ahead) end
+        if git.behind then table.insert(s, '↓' .. git.behind) end
+        if git.staged > 0 then table.insert(s, '%#OilWinbarStaged#+' .. git.staged) end
+        if git.changed > 0 then table.insert(s, '%#OilWinbarChanged#~' .. git.changed) end
+        if git.untracked > 0 then table.insert(s, '%#OilWinbarUntracked#?' .. git.untracked) end
+        if git.staged + git.changed + git.untracked == 0 then table.insert(s, '%#OilWinbarClean#✓') end
+        table.insert(parts, table.concat(s, ' ') .. '%*')
+    end
+    return table.concat(parts, '   ')
+end
+
+-- Header colors (linked to theme groups so they follow the colorscheme)
+vim.api.nvim_set_hl(0, 'OilWinbarPath', { link = 'Directory', default = true })
+vim.api.nvim_set_hl(0, 'OilWinbarBranch', { link = 'Special', default = true })
+vim.api.nvim_set_hl(0, 'OilWinbarStaged', { link = 'GitSignsAdd', default = true })
+vim.api.nvim_set_hl(0, 'OilWinbarChanged', { link = 'GitSignsChange', default = true })
+vim.api.nvim_set_hl(0, 'OilWinbarUntracked', { link = 'Comment', default = true })
+vim.api.nvim_set_hl(0, 'OilWinbarClean', { link = 'GitSignsAdd', default = true })
+
+vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'FocusGained' }, {
+    desc = 'Refresh git status in the oil header',
+    callback = function(ev)
+        if vim.bo[ev.buf].filetype == 'oil' then
+            OilGitRefresh(require('oil').get_current_dir(ev.buf))
+        end
+    end,
+})
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'OilActionsPost', -- After oil finishes creating / renaming / deleting files
+    desc = 'Refresh git status in the oil header after file changes',
+    callback = function()
+        OilGitRefresh(require('oil').get_current_dir())
+    end,
+})
+-- Oil keymaps (-, <leader>pv, <leader>po) live in the Keymaps section,
+-- after mapleader is set.
+
+--[[
 --  SECT: Lsp
 --]]
 vim.lsp.enable('clangd')                            -- C / C++
@@ -526,15 +722,36 @@ vim.keymap.set('i', '<C-S-o>', '<C-o><S-o>')
 
 vim.keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", {desc = 'Show the warning(s) / error(s) in a float'})
 
-vim.keymap.set('n', "<leader>pv", function() vim.cmd('Ex') end)
+-- File explorer (oil)
+vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Open parent directory in oil' })
+vim.keymap.set('n', '<leader>pv', '<cmd>Oil<CR>', { desc = 'Open file explorer (oil)' })
+vim.keymap.set('n', '<leader>po', function() require('oil').toggle_float() end, { desc = 'Open file explorer in a float (oil)' })
+
+-- Git (fugitive). Inside oil, <leader>gd / <leader>gD act on the entry under the cursor instead.
+vim.keymap.set('n', '<leader>gd', '<cmd>Gvdiffsplit<CR>', { desc = 'Git diff this file vs staged (side by side)' })
+vim.keymap.set('n', '<leader>gD', '<cmd>Gvdiffsplit HEAD<CR>', { desc = 'Git diff this file vs last commit (side by side)' })
+vim.keymap.set('n', '<leader>gs', '<cmd>Git<CR>', { desc = 'Git status (fugitive)' })
 
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = "Move the line down and adjust indentation" })
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = "Move the line up and adjust indentation" })
 
 vim.keymap.set('n', 'J', "mzJ`z", { desc = "Append the next line to the end of this line" })
 
-vim.keymap.set('n', '<C-d>', "<C-d>zz", { desc = "Move down 25 lines" })
-vim.keymap.set('n', '<C-u>', "<C-u>zz", { desc = "Move up 25 lines" })
+-- Half-page jumps that keep the cursor centered. In a diff window, move by real
+-- lines instead of scrolling the screen. Otherwise <C-d>/<C-u> get stuck when
+-- the other side has a block of added lines bigger than half a page: the
+-- cursor can't land on the blank filler rows, so zz keeps pulling it back.
+local function half_page(down)
+    return function()
+        if not vim.wo.diff then
+            return (down and '<C-d>' or '<C-u>') .. 'zz'
+        end
+        local n = vim.wo.scroll > 0 and vim.wo.scroll or math.floor(vim.api.nvim_win_get_height(0) / 2)
+        return n .. (down and 'j' or 'k') .. 'zz'
+    end
+end
+vim.keymap.set('n', '<C-d>', half_page(true), { expr = true, desc = "Move down half a page" })
+vim.keymap.set('n', '<C-u>', half_page(false), { expr = true, desc = "Move up half a page" })
 
 vim.keymap.set('x', "<leader>p", "\"_dP", { desc = "Paste without overwriting clipboard"})
 vim.keymap.set('x', "<leader>d", "\"_d", { desc = "Delete without overwriting clipboard"})
@@ -547,19 +764,6 @@ vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', {noremap 
 vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', {noremap = true, silent = true})
 vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', {noremap = true, silent = true})
 vim.keymap.set('i', '<C-g>', '<cmd>lua vim.lsp.buf.signature_help()<cr>', {noremap = true, silent = true})
-
--- Harpoon bindings
-local harpoon_mark = require("harpoon.mark")
-local harpoon_ui = require("harpoon.ui")
-vim.keymap.set('n', "<leader>a", harpoon_mark.add_file, { desc = "Add file to harpoon" })
-vim.keymap.set('n', "<C-e>", harpoon_ui.toggle_quick_menu, { desc = "Show harpoon files" })
-vim.keymap.set('n', "<C-h>", function() harpoon_ui.nav_file(1) end, { desc = "Move to the first harpoon buffer" })
-vim.keymap.set('n', "<C-j>", function() harpoon_ui.nav_file(2) end, { desc = "Move to the second harpoon buffer" })
-vim.keymap.set('n', "<C-k>", function() harpoon_ui.nav_file(3) end, { desc = "Move to the third harpoon buffer" })
-vim.keymap.set('n', "<C-l>", function() harpoon_ui.nav_file(4) end, { desc = "Move to the fourth harpoon buffer" })
-vim.keymap.set('n', "<C-t>", function() harpoon_ui.nav_file(5) end, { desc = "Move to the fifth harpoon buffer" })
-vim.keymap.set('n', "<C-n>", function() harpoon_ui.nav_file(6) end, { desc = "Move to the sixth harpoon buffer" })
-vim.keymap.set('n', "<C-s>", function() harpoon_ui.nav_file(7) end, { desc = "Move to the seventh harpoon buffer" })
 
 -- Telescope Bindings
 local telescope = require('telescope.builtin')
@@ -577,7 +781,17 @@ require('render-markdown').setup({
 		anti_conceal = { enable = false },
 		file_types = { 'opencode_output' }
 	},
-	ft = { 'Avante', 'copilot-chat', 'opencode_output' }
+	ft = { 'Avante', 'copilot-chat', 'opencode_output' },
+	-- Don't render inside floating windows (LSP hover / signature help popups).
+	-- Neovim's own markdown highlighting still applies there.
+	ignore = function(buf)
+		for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+			if vim.api.nvim_win_get_config(win).relative ~= '' then
+				return true
+			end
+		end
+		return false
+	end,
 })
 
 vim.api.nvim_create_autocmd("FileType", {
